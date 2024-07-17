@@ -1,4 +1,6 @@
-use std::fmt::Display;
+use std::{f32::consts::PI, fmt::Display};
+
+use crate::chain::Node;
 
 #[derive(Default, Clone, Debug)]
 pub struct Point {
@@ -12,23 +14,47 @@ impl Display for Point {
     }
 }
 
-pub fn move_point(anchor: &Point, mover: &Point, radius: f32) -> Option<Point> {
+pub fn pull_node_on_point(anchor: &Point, mut mover: Node, radius: &f32) -> Node {
+    match move_point(anchor, &mover.point, radius) {
+        Some(new_pos) => {
+            mover.point = new_pos;
+        }
+        None => {
+            return mover;
+        }
+    }
+
+    mover.theta = get_point_heading(anchor, &mover.point);
+    mover.generate_sides();
+
+    mover
+}
+
+/*
+    dx = mover_x - anchor_x
+    dy = mover_y - anchor_y
+
+    theta = arctan( dy / dx )
+*/
+fn get_point_heading(anchor: &Point, mover: &Point) -> f32 {
     let dx = mover.x - anchor.x;
     let dy = mover.y - anchor.y;
 
-    let distance = (dx.powi(2) + dy.powi(2)).sqrt();
+    let base_theta = (dy / dx).atan();
 
-    // Node is already in radius so can return no new pos
-    if distance <= radius {
-        return None;
+    if dx < 0.0 && dy < 0.0 {
+        return base_theta;
     }
 
-    let percent_diff = radius / distance;
+    let differ = match dx < 0.0 {
+        true => PI,
+        false => -PI,
+    };
 
-    Some(Point {
-        x: anchor.x + (dx * percent_diff),
-        y: anchor.y + (dy * percent_diff),
-    })
+    return match dy < 0.0 {
+        true => differ + base_theta,
+        false => differ - base_theta,
+    };
 }
 
 /*
@@ -48,6 +74,24 @@ pub fn move_point(anchor: &Point, mover: &Point, radius: f32) -> Option<Point> {
     new_y = prev_y + ( dy * percent_change )
 
 */
+pub fn move_point(anchor: &Point, mover: &Point, radius: &f32) -> Option<Point> {
+    let dx = mover.x - anchor.x;
+    let dy = mover.y - anchor.y;
+
+    let distance = (dx.powi(2) + dy.powi(2)).sqrt();
+
+    // Node is already in radius so can return no new pos
+    if &distance <= radius {
+        return None;
+    }
+
+    let percent_diff = radius / distance;
+
+    Some(Point {
+        x: anchor.x + (dx * percent_diff),
+        y: anchor.y + (dy * percent_diff),
+    })
+}
 
 #[cfg(test)]
 mod tests {
@@ -57,7 +101,7 @@ mod tests {
     fn pull_direction_x() {
         let anchor = Point { x: 10f32, y: 0f32 };
         let mover = Point { x: 3f32, y: 0f32 };
-        let result = move_point(&anchor, &mover, 5f32);
+        let result = move_point(&anchor, &mover, &5f32);
         assert!(result.is_some());
         let result = result.unwrap();
         assert_eq!(result.x, 5f32);
@@ -69,7 +113,7 @@ mod tests {
         {
             let anchor = Point { x: 0f32, y: 10f32 };
             let mover = Point { x: 0f32, y: 3f32 };
-            let result = move_point(&anchor, &mover, 5f32);
+            let result = move_point(&anchor, &mover, &5f32);
             assert!(result.is_some());
             let result = result.unwrap();
             assert_eq!(result.x, 0f32);
@@ -84,7 +128,7 @@ mod tests {
 
         let radius = 1.8;
 
-        let result = move_point(&anchor, &mover, radius);
+        let result = move_point(&anchor, &mover, &radius);
         assert!(result.is_some());
         let result = result.unwrap();
         assert_eq!(format!("{:.3}", result.x), "1.502");
@@ -98,7 +142,7 @@ mod tests {
 
         let radius = 100.0;
 
-        let result = move_point(&anchor, &mover, radius);
+        let result = move_point(&anchor, &mover, &radius);
         assert!(result.is_none());
     }
 }
