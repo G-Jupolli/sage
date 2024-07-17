@@ -42,6 +42,12 @@ pub struct Sides {
     pub right: Point,
 }
 
+impl Display for Sides {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Left: {}, Right: {}", self.left, self.right)
+    }
+}
+
 #[derive(Debug)]
 pub struct MoveCommand {
     up: bool,
@@ -99,26 +105,34 @@ impl Chain {
         assert_eq!(node_radials.len(), 10, "There can only be 10 nodes");
 
         let head = Head {
-            point: Point { x, y },
-            theta: PI / 2f32,
-            speed: 1.0,
+            point: Point {
+                x: x.clone(),
+                y: y.clone(),
+            },
+            theta: -PI / 2f32,
+            speed: 5.0,
             children: node_radials
                 .into_iter()
-                .map(|radial| Node::from(radial as f32))
+                .enumerate()
+                .map(|(index, radial)| Node {
+                    point: Point {
+                        x: x.clone(),
+                        y: y - (node_distancing * index as f32),
+                    },
+                    radial: radial as f32,
+                    theta: PI / 2f32,
+                    // TODO generate with sides
+                    sides: Sides::default(),
+                })
                 .collect(),
         };
 
-        let mut res = Chain {
+        Chain {
             head,
             node_distancing,
             max_x,
             max_y,
-        };
-
-        // Do an initial move to ensure all nodes are positioned correctly
-        res.head.move_chain(&res.node_distancing);
-
-        res
+        }
     }
 
     pub fn travel(self: &mut Self) {
@@ -135,7 +149,7 @@ impl Display for Chain {
 impl Display for Head {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut base_str = format!(
-            "  Head - pos: {}, theta: {}, speed: {}\n  Children:\n",
+            "  Head - Pos: {}, Heading: {}, Speed: {}\n  Children:\n",
             self.point, self.theta, self.speed
         );
 
@@ -148,22 +162,11 @@ impl Display for Head {
     }
 }
 
-impl From<f32> for Node {
-    fn from(radial: f32) -> Self {
-        Node {
-            radial,
-            point: Point::default(),
-            theta: 0.0,
-            sides: Sides::default(),
-        }
-    }
-}
-
 impl Display for Node {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "    pos: {}, heading: {}, {:?}",
+            "    Pos: {}, Heading: {}, Sides: {}",
             self.point, self.theta, self.sides
         )
     }
