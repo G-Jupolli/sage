@@ -28,6 +28,13 @@ pub struct Head {
     pub children: Vec<Node>,
 }
 
+struct HeadSides {
+    pub left: Point,
+    pub right: Point,
+    pub left_eue: Point,
+    pub right_eye: Point,
+}
+
 #[derive(Clone, Debug)]
 pub struct Node {
     pub point: Point,
@@ -45,6 +52,21 @@ pub struct Sides {
 impl Display for Sides {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Left: {}, Right: {}", self.left, self.right)
+    }
+}
+
+impl From<(&Point, &f32, &f32)> for Sides {
+    fn from((origin, radial, heading): (&Point, &f32, &f32)) -> Self {
+        Sides {
+            left: Point {
+                x: origin.x + (heading - PI / 2.0).cos() * radial,
+                y: origin.y + (heading - PI / 2.0).sin() * radial,
+            },
+            right: Point {
+                x: origin.x + (heading + PI / 2.0).cos() * radial,
+                y: origin.y + (heading + PI / 2.0).sin() * radial,
+            },
+        }
     }
 }
 
@@ -114,15 +136,19 @@ impl Chain {
             children: node_radials
                 .into_iter()
                 .enumerate()
-                .map(|(index, radial)| Node {
-                    point: Point {
+                .map(|(index, radial)| {
+                    let radial = radial as f32;
+                    let origin = Point {
                         x: x.clone(),
                         y: y - (node_distancing * index as f32),
-                    },
-                    radial: radial as f32,
-                    theta: PI / 2f32,
-                    // TODO generate with sides
-                    sides: Sides::default(),
+                    };
+                    let heading = PI / 2f32;
+                    Node {
+                        sides: Sides::from((&origin, &radial, &heading)),
+                        point: origin,
+                        theta: heading,
+                        radial,
+                    }
                 })
                 .collect(),
         };
@@ -211,15 +237,12 @@ impl Head {
 }
 
 impl Node {
-    pub fn generate_sides(self: &mut Self) {
-        self.sides.left = Point {
-            x: self.radial * self.theta.sin(),
-            y: self.radial * self.theta.cos(),
-        };
-        self.sides.right = Point {
-            x: self.radial * (-self.theta).sin(),
-            y: self.radial * (-self.theta).cos(),
-        };
+    pub fn update_sides(self: &mut Self) {
+        self.sides.left.x = self.point.x + (self.theta - PI / 2.0).cos() * self.radial;
+        self.sides.left.y = self.point.y + (self.theta - PI / 2.0).sin() * self.radial;
+
+        self.sides.right.x = self.point.x + (self.theta + PI / 2.0).cos() * self.radial;
+        self.sides.right.y = self.point.y + (self.theta + PI / 2.0).sin() * self.radial;
     }
 }
 

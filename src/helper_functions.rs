@@ -25,7 +25,7 @@ pub fn pull_node_on_point(anchor: &Point, mut mover: Node, radius: &f32) -> Node
     }
 
     mover.theta = get_point_heading(anchor, &mover.point);
-    mover.generate_sides();
+    mover.update_sides();
 
     mover
 }
