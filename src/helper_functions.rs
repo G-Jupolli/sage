@@ -37,24 +37,12 @@ pub fn pull_node_on_point(anchor: &Point, mut mover: Node, radius: &f32) -> Node
     theta = arctan( dy / dx )
 */
 fn get_point_heading(anchor: &Point, mover: &Point) -> f32 {
-    let dx = mover.x - anchor.x;
-    let dy = mover.y - anchor.y;
+    let dx = anchor.x - mover.x;
+    let dy = anchor.y - mover.y;
 
     let base_theta = (dy / dx).atan();
 
-    if dx < 0.0 && dy < 0.0 {
-        return base_theta;
-    }
-
-    let differ = match dx < 0.0 {
-        true => PI,
-        false => -PI,
-    };
-
-    return match dy < 0.0 {
-        true => differ + base_theta,
-        false => differ - base_theta,
-    };
+    return base_theta;
 }
 
 /*

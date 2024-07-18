@@ -1,7 +1,7 @@
 use chain::Chain;
 
 mod chain;
-pub mod helper_functions;
+mod helper_functions;
 
 fn main() {
     println!("Hello, world!");
@@ -9,7 +9,7 @@ fn main() {
     let mut chain = Chain::create(
         64.0,
         64.0,
-        4.0,
+        32.0,
         vec![64, 64, 68, 68, 66, 64, 62, 60, 60, 56],
         1000,
         1000,

@@ -131,8 +131,8 @@ impl Chain {
                 x: x.clone(),
                 y: y.clone(),
             },
-            theta: -PI / 2f32,
-            speed: 5.0,
+            theta: PI / 4.0,
+            speed: 24.0,
             children: node_radials
                 .into_iter()
                 .enumerate()
@@ -199,16 +199,21 @@ impl Display for Node {
 }
 
 impl Head {
-    // fn add_heading(self: &mut Self, heading: f32) {
-    //     let heading_diff = max(min(heading, MAX_DIFF), -MAX_DIFF);
+    pub fn add_heading(self: &mut Self, delta: f32) {
+        self.theta += delta;
 
-    // }
+        if self.theta > PI {
+            self.theta -= 2.0 * PI;
+        }
+
+        if self.theta < -PI {
+            self.theta += 2.0 * PI;
+        }
+    }
 
     fn move_chain(self: &mut Self, spacing: &f32) {
         self.point.x += self.speed * self.theta.cos();
         self.point.y += self.speed * self.theta.sin();
-
-        self.theta += 0.2;
 
         let mut child_iter = self.children.clone().into_iter();
 
