@@ -43,6 +43,8 @@ impl App {
     fn render(&mut self, args: &RenderArgs) {
         use graphics::*;
 
+        // self.chain.travel();
+
         const GREEN: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
         const BLUE: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
         const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];

@@ -244,8 +244,8 @@ impl Head {
         [
             self.point.x as f64 - 32.0,
             self.point.y as f64 - 32.0,
-            self.point.x as f64 + 32.0,
-            self.point.y as f64 + 32.0,
+            32.0,
+            32.0,
         ]
     }
 }
