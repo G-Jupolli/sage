@@ -8,6 +8,15 @@ pub struct Point {
     pub y: f32,
 }
 
+pub fn point_bounding_rect(point: &Point, radius: &f64) -> [f64; 4] {
+    [
+        point.x as f64 - radius,
+        point.y as f64 - radius,
+        point.x as f64 + radius,
+        point.y as f64 + radius,
+    ]
+}
+
 impl Display for Point {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "({}, {})", self.x, self.y)

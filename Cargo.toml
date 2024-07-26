@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+engine_runner = { path = "engine_runner" }
+
+[workspace]
+members = [".", "entity", "engine_runner"]

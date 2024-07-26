@@ -239,6 +239,15 @@ impl Head {
 
         self.children = new_children;
     }
+
+    pub fn get_bounding_rect(self: &Self) -> [f64; 4] {
+        [
+            self.point.x as f64 - 32.0,
+            self.point.y as f64 - 32.0,
+            self.point.x as f64 + 32.0,
+            self.point.y as f64 + 32.0,
+        ]
+    }
 }
 
 impl Node {
