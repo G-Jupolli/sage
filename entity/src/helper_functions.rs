@@ -21,8 +21,8 @@ pub fn point_bounding_rect(point: &Point, radius: &f64) -> [f64; 4] {
     [
         point.x as f64 - radius,
         point.y as f64 - radius,
-        radius.clone(),
-        radius.clone(),
+        radius * 2.0,
+        radius * 2.0,
     ]
 }
 

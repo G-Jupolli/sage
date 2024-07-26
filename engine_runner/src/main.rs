@@ -56,6 +56,7 @@ impl App {
         //
         // self.chain.head
 
+        self.chain.travel();
         let h = 60.0 * (1.0 - 6 as f64 / 5.0);
         let rect = [120.0, 50.0 - h / 2.0, 60.0, h];
 

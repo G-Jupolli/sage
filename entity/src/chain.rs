@@ -132,7 +132,7 @@ impl Chain {
                 y: y.clone(),
             },
             theta: PI / 4.0,
-            speed: 24.0,
+            speed: 8.0,
             children: node_radials
                 .into_iter()
                 .enumerate()
@@ -244,8 +244,8 @@ impl Head {
         [
             self.point.x as f64 - 32.0,
             self.point.y as f64 - 32.0,
-            32.0,
-            32.0,
+            64.0,
+            64.0,
         ]
     }
 }
