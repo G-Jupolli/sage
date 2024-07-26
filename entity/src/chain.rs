@@ -124,7 +124,10 @@ impl Chain {
         max_x: i32,
         max_y: i32,
     ) -> Chain {
-        assert_eq!(node_radials.len(), 10, "There can only be 10 nodes");
+        assert!(
+            node_radials.len() <= 20,
+            "There can only be 20 or less nodes"
+        );
 
         let head = Head {
             point: Point {
@@ -214,6 +217,14 @@ impl Head {
     fn move_chain(self: &mut Self, spacing: &f32) {
         self.point.x += self.speed * self.theta.cos();
         self.point.y += self.speed * self.theta.sin();
+
+        if self.point.x > 900.0 || self.point.y > 700.0 {
+            self.add_heading(-PI / 2.0);
+        }
+
+        if self.point.x < 56.0 || self.point.y < 64.0 {
+            self.add_heading(PI / 2.0);
+        }
 
         let mut child_iter = self.children.clone().into_iter();
 

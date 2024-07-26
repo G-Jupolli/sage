@@ -4,9 +4,11 @@ extern crate opengl_graphics;
 extern crate piston;
 extern crate rand;
 
+use std::f32::consts::PI;
+
 use crate::piston::EventLoop;
-use entity::chain::Chain;
-use entity::point_bounding_rect;
+use entity::chain::{Chain, Sides};
+use entity::{line_between_points_bounds, point_bounding_rect};
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventSettings, Events};
@@ -45,40 +47,37 @@ impl App {
 
         // self.chain.travel();
 
-        const GREEN: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
-        const BLUE: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
-        const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
-        const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
-
-        // let mut square_segments: Vec<[f64; 4]> = Vec::new();
-
-        // let mut points: Vec<f64>
-        //
-        // self.chain.head
+        const GREEN: [f32; 4] = [0.0, 1.0, 0.0, 0.01];
+        const BLUE: [f32; 4] = [0.0, 0.0, 1.0, 0.01];
+        const RED: [f32; 4] = [1.0, 0.0, 0.0, 0.01];
+        const PURPLE: [f32; 4] = [1.0, 0.0, 1.0, 1.0];
+        const PURPLEA: [f32; 4] = [1.0, 0.0, 1.0, 0.5];
+        const WHITE: [f32; 4] = [0.0, 0.0, 0.0, 0.0];
 
         self.chain.travel();
-        let h = 60.0 * (1.0 - 6 as f64 / 5.0);
-        let rect = [120.0, 50.0 - h / 2.0, 60.0, h];
-
-        // let mut thi = circle_arc(BLUE, 5, PI, -PI, rect, transform, g);
-
-        // for i in &self.segments {
-        //     let x = i.x as f64;
-        //     let y = i.y as f64;
-        //     square_segments.push(rectangle::square(x, y, 10.0));
-        // }
-
-        // let apple = rectangle::square(self.applex as f64, self.appley as f64, 10.0);
 
         self.gl.draw(args.viewport(), |c, gl| {
             clear(WHITE, gl);
-            for node in self.chain.head.children.iter() {
-                ellipse(
-                    GREEN,
-                    point_bounding_rect(&node.point, &(node.radial as f64)),
-                    c.transform,
-                    gl,
-                );
+
+            let mut node_iter = self.chain.head.children.iter();
+
+            let mut prev_sides = Sides::from((
+                &self.chain.head.point,
+                &(64.0 as f32),
+                &self.chain.head.theta,
+            ));
+
+            let mut curr = Some(node_iter.next().expect("Should have first child"));
+
+            while curr.is_some() {
+                let node = curr.unwrap();
+                // ellipse(
+                //     GREEN,
+                //     point_bounding_rect(&node.point, &(node.radial as f64)),
+                //     c.transform,
+                //     gl,
+                // );
+
                 ellipse(
                     RED,
                     point_bounding_rect(&node.sides.left, &8.0),
@@ -91,7 +90,46 @@ impl App {
                     c.transform,
                     gl,
                 );
+
+                line(
+                    PURPLE,
+                    1.0,
+                    line_between_points_bounds(&prev_sides.left, &node.sides.left),
+                    c.transform,
+                    gl,
+                );
+                line(
+                    PURPLE,
+                    1.0,
+                    line_between_points_bounds(&prev_sides.right, &node.sides.right),
+                    c.transform,
+                    gl,
+                );
+
+                line(
+                    PURPLE,
+                    1.0,
+                    line_between_points_bounds(&prev_sides.right, &node.sides.right),
+                    c.transform,
+                    gl,
+                );
+
+                prev_sides = node.sides.clone();
+                curr = node_iter.next();
+
+                // if curr.is_none() {
+                circle_arc(
+                    PURPLE,
+                    node.radial.clone() as f64,
+                    (node.theta + (PI / 2.0)) as f64,
+                    (node.theta - (PI / 2.0)) as f64,
+                    point_bounding_rect(&node.point, &(node.radial as f64)),
+                    c.transform,
+                    gl,
+                );
+                // }
             }
+
             ellipse(BLUE, self.chain.head.get_bounding_rect(), c.transform, gl);
         });
     }
@@ -199,13 +237,14 @@ impl App {
 pub fn main() {
     // Change this to OpenGL::V2_1 if not working.
     let opengl = OpenGL::V3_2;
-    let windowx: u32 = 1000;
-    let windowy: u32 = 720;
+    let windowx: u32 = 1200;
+    let windowy: u32 = 800;
 
     // Create a Glutin window.
     let mut window: Window = WindowSettings::new("Snake", [windowx, windowy])
+        .transparent(true)
         .graphics_api(opengl)
-        .exit_on_esc(true)
+        .exit_on_esc(false)
         .resizable(false)
         .build()
         .unwrap();
@@ -223,7 +262,9 @@ pub fn main() {
             200.0,
             200.0,
             32.0,
-            vec![64, 64, 68, 68, 66, 64, 62, 60, 60, 56],
+            vec![
+                32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
+            ],
             1000,
             1000,
         ),

@@ -1,4 +1,4 @@
-use std::{f32::consts::PI, fmt::Display};
+use std::fmt::Display;
 
 use crate::chain::Node;
 
@@ -23,6 +23,15 @@ pub fn point_bounding_rect(point: &Point, radius: &f64) -> [f64; 4] {
         point.y as f64 - radius,
         radius * 2.0,
         radius * 2.0,
+    ]
+}
+
+pub fn line_between_points_bounds(point_a: &Point, point_b: &Point) -> [f64; 4] {
+    [
+        point_a.x.clone() as f64,
+        point_a.y.clone() as f64,
+        point_b.x.clone() as f64,
+        point_b.y.clone() as f64,
     ]
 }
 
